@@ -13,10 +13,19 @@
 </head>
 
 <body>
+  <!-- Make Map in html-->
   <div id='map'></div>
+  <!-- Make Legend in html -->
+  <div id="state-legend" class="legend">
+<h4>Legend</h4>
+<div><span style="background-color: #ee1b1b"></span>School</div>
+<div><span style="background-color: #000000"></span>Hospital or Clinic</div>
+
+</div>
 
   <script>
 
+    //Create a map using the style I created on Mapbox
     mapboxgl.accessToken = 'pk.eyJ1IjoiMTJza25pZ2h0IiwiYSI6ImNrbHZvbWVtbzBhamoyd3A4enZsNGFlOHgifQ.Ln_rR0C_bKdhKhvT-JkjTQ';
     var map = new mapboxgl.Map({
       container: 'map', // container id
@@ -24,21 +33,27 @@
       center: [-114.0719,51.0447], // starting position
       zoom: 9 // starting zoom
     });
-
+    //Load the data for the hospitals I am not going to map this is just need it for the nearest hospital functionality
+    //Loading as a url would not work for some reason I kept getting a CORS Policy error and I dont know what that is
      hospt={"type":"FeatureCollection","features":[{"type":"Feature","properties":{"TYPE":"Hospital","NAME":"Alberta Children's Hospital","ADDRESS":"2888 Shaganappi Trail NW","COMM_CODE":"UOC","location":"(51.07455988033879, -114.14795761511185)"},"geometry":{"coordinates":[-114.147957,51.074559],"type":"Point"},"id":"01c324756b07eac3d38ade9febb27415"},{"type":"Feature","properties":{"TYPE":"PHS Clinic","NAME":"South Calgary Health Centre","ADDRESS":"31 Sunpark Plaza SE","COMM_CODE":"SDC","location":"(50.90257527258776, -114.05857497443219)"},"geometry":{"coordinates":[-114.058574,50.902575],"type":"Point"},"id":"0c8a23351c9130340480036461844152"},{"type":"Feature","properties":{"TYPE":"Hospital","NAME":"South Health Campus","ADDRESS":"4448 FRONT ST SE","COMM_CODE":"SET","location":"(50.88210185113848, -113.95170381192895)"},"geometry":{"coordinates":[-113.951703,50.882101],"type":"Point"},"id":"313d736ff05d9dc8869ded30a1d7301a"},{"type":"Feature","properties":{"TYPE":"PHS Clinic","NAME":"Thornhill Community Health Centre","ADDRESS":"6617 Centre ST NW","COMM_CODE":"HUN","location":"(51.11218619333126, -114.06391459432675)"},"geometry":{"coordinates":[-114.063914,51.112186],"type":"Point"},"id":"328f0c2d1d5efec00e5e3096c4251e44"},{"type":"Feature","properties":{"TYPE":"Hospital","NAME":"Peter Lougheed Medical Centre","ADDRESS":"3500 - 26 AV NE","COMM_CODE":"SUN","location":"(51.07901634932495, -113.98394351382268)"},"geometry":{"coordinates":[-113.983943,51.079016],"type":"Point"},"id":"337297313dfd7f78c999837701220521"},{"type":"Feature","properties":{"TYPE":"PHS Clinic","NAME":"East Calgary Health Centre","ADDRESS":"4715 8 AV SE","COMM_CODE":"FLN","location":"(51.04504854027524, -113.9672200855659)"},"geometry":{"coordinates":[-113.96722,51.045048],"type":"Point"},"id":"39c1f43b0c1e028dad0ad6178cba9f1a"},{"type":"Feature","properties":{"TYPE":"PHS Clinic","NAME":"Acadia Community Health Centre","ADDRESS":"151 - 86 AV SE","COMM_CODE":"ACA","location":"(50.97507203441003, -114.0709401043907)"},"geometry":{"coordinates":[-114.07094,50.975072],"type":"Point"},"id":"598146d6bcd583ad705db8e7d44737a7"},{"type":"Feature","properties":{"TYPE":"PHS Clinic","NAME":"Sheldon M. Chumir Health Centre","ADDRESS":"1213 - 4 ST SW","COMM_CODE":"BLN","location":"(51.04116344159869, -114.07212956123551)"},"geometry":{"coordinates":[-114.072129,51.041163],"type":"Point"},"id":"81c759bf1fd4edfeaab93c7c33cce331"},{"type":"Feature","properties":{"TYPE":"Hospital","NAME":"Rockyview General Hospital","ADDRESS":"7007 - 14 ST SW","COMM_CODE":"EAG","location":"(50.991828888017004, -114.09632069904508)"},"geometry":{"coordinates":[-114.09632,50.991828],"type":"Point"},"id":"867edd549e59554ca437aadada99aa9a"},{"type":"Feature","properties":{"TYPE":"Hospital","NAME":"Foothills Hospital","ADDRESS":"1403 - 29 ST NW","COMM_CODE":"STA","location":"(51.064182937103176, -114.13217660430655)"},"geometry":{"coordinates":[-114.132176,51.064182],"type":"Point"},"id":"b4dea3fc6e43d9be53d9bf8b0fa14151"},{"type":"Feature","properties":{"TYPE":"PHS Clinic","NAME":"Northwest Community Health Centre","ADDRESS":"109 1829 Ranchlands BV NW","COMM_CODE":"RAN","location":"(51.123333552258295, -114.1971615208791)"},"geometry":{"coordinates":[-114.197161,51.123333],"type":"Point"},"id":"c0066d227477af761bc66792a49cb833"},{"type":"Feature","properties":{"TYPE":"PHS Clinic","NAME":"Shaganappi Complex Health Centre","ADDRESS":"3415 - 8 AV SW","COMM_CODE":"SPR","location":"(51.04488712410958, -114.13684189371192)"},"geometry":{"coordinates":[-114.136841,51.044887],"type":"Point"},"id":"cfd86759e88d8aad2b6d6ef9f5cc77f0"},{"type":"Feature","properties":{"TYPE":"PHS Clinic","NAME":"Village Square Community Health Centre","ADDRESS":"2623 - 56 ST NE","COMM_CODE":"PIN","location":"(51.07553892796213, -113.95355569514419)"},"geometry":{"coordinates":[-113.953555,51.075538],"type":"Point"},"id":"d0128d5a7c982ec21ee4cf33223addad"},{"type":"Feature","properties":{"TYPE":"PHS Clinic","NAME":"North Hill Community Health Centre","ADDRESS":"1527 19 ST NW","COMM_CODE":"HOU","location":"(51.06532159267874, -114.10650709115143)"},"geometry":{"coordinates":[-114.106507,51.065321],"type":"Point"},"id":"f13457a17a0cce6cf7b3693766d573fb"}]};
 
+     //make a pop up for the name
     var popup = new mapboxgl.Popup();
 
+    //on event that cursor is over a point make the name appear as a popup
     map.on('mousemove', function(e) {
+      //get the features layers from the mapbox map
       var features = map.queryRenderedFeatures(e.point, { layers: ['community-services-2', 'school-locations-awogks'] });
       if (!features.length) {
         popup.remove();
         return;
       }
       var feature = features[0];
-
+      //place the popup at the point
       popup.setLngLat(feature.geometry.coordinates)
+      //get the name
       .setHTML(feature.properties.NAME)
+      //add the popup to the map
       .addTo(map);
 
       map.getCanvas().style.cursor = features.length ? 'pointer' : '';
@@ -54,7 +69,8 @@
         });
       });
 
-
+//Add nearest hospital functionality all of this is copy paste from the tutorial with name changes
+//from library to school
 map.on('click', function(e) {
   // Return any features from the 'libraries' layer whenever the map is clicked
   var schoolFeatures = map.queryRenderedFeatures(e.point, { layers: ['school-locations-awogks'] });
@@ -65,6 +81,7 @@ map.on('click', function(e) {
   var schoolFeature = schoolFeatures[0];
 
   // Using Turf, find the nearest hospital to library clicked
+  //The second input value here is why i needed to manually add geoJSON for hospitals
   var nearestHospital = turf.nearest(schoolFeature, hospt);
 
   // If a nearest library is found
